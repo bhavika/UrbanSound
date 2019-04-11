@@ -1,0 +1,4 @@
+UrbanSound8k/
+*.tar.gz
+output/
+venv/
