@@ -1,4 +1,3 @@
-import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D
@@ -6,17 +5,10 @@ from keras.optimizers import SGD
 from keras.regularizers import l2
 from sklearn import metrics
 import itertools
-from src.create_rep import *
-from src.constants import *
+import numpy as np
 from sklearn.metrics import accuracy_score, classification_report
-
-tr_features = np.load(train_features_pickle)
-tr_labels = np.load(train_labels_pickle)
-tr_labels = one_hot_encode(tr_labels)
-
-ts_features = np.load(test_features_pickle)
-ts_labels = np.load(test_labels_pickle)
-ts_labels = one_hot_encode(ts_labels)
+from src.config import *
+from src.explore import get_data
 
 
 def SBCNN_Model(field_size, bands, frames, num_channels, num_labels):
@@ -50,17 +42,20 @@ def run_model(optimizer, n_iter):
     sbcnn = SBCNN_Model(field_size, bands, frames, num_channels, num_labels)
 
     sbcnn.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer=optimizer)
-    sbcnn.fit(tr_features, tr_labels, batch_size=32, nb_epoch=n_iter)
 
-    y_prob = sbcnn.predict_proba(ts_features, verbose=0)
+    train_arr, train_labels_arr, test_arr, test_labels_arr = get_data()
+
+    sbcnn.fit(train_arr, train_labels_arr, batch_size=32, nb_epoch=n_iter)
+
+    y_prob = sbcnn.predict_proba(test_arr, verbose=0)
     y_pred = y_prob.argmax(axis=-1)
-    y_true = np.argmax(ts_labels, 1)
-    roc = metrics.roc_auc_score(ts_labels, y_prob)
+    y_true = np.argmax(test_labels_arr, 1)
+    roc = metrics.roc_auc_score(test_labels_arr, y_prob)
 
     print("SBCNN with optimizer {} and {} iterations".format(optimizer, n_iter))
     print("ROC:", round(roc, 3))
 
-    score, accuracy = sbcnn.evaluate(ts_features, ts_labels, batch_size=32)
+    score, accuracy = sbcnn.evaluate(test_arr, test_labels_arr, batch_size=32)
     print("\nOverall accuracy = {:.2f}".format(accuracy))
 
     print("Classwise accuracy - normalized")
@@ -83,5 +78,6 @@ def main():
     for p in params:
         run_model(p[0], p[1])
 
-# if __name__ == '__main__':
-#     main()
+
+if __name__ == '__main__':
+    main()

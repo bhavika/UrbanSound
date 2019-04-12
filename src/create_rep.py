@@ -3,7 +3,8 @@ import librosa as lb
 import os
 from tqdm import tqdm
 import glob
-from constants import *
+from src.config import *
+from dotenv import load_dotenv
 
 
 def windows(data, window_size):
@@ -20,7 +21,7 @@ def extract_features(parent_dir, sub_dirs, file_ext="*.wav", bands=60, frames=41
     for l, sub_dir in enumerate(sub_dirs):
         for fn in tqdm(glob.glob(os.path.join(parent_dir, sub_dir, file_ext))):
             sound_clip, s = lb.load(fn)
-            label = fn.split('/')[6].split('-')[1]
+            label = os.path.basename(fn).split('-')[1]
             for (start, end) in windows(sound_clip, window_size):
                 if len(sound_clip[start:end]) == window_size:
                     signal = sound_clip[start:end]
@@ -49,28 +50,30 @@ def main():
     train_folds = ["fold" + str(i) for i in range(1, 8)]
     test_folds = ["fold8", "fold9", "fold10"]
 
+    data_dir = os.getenv('DATA')
+    parent_dir = os.path.join(data_dir, 'audio')
+
     train_features, train_labels = extract_features(parent_dir, sub_dirs=train_folds)
 
-    np.save(train_features_pickle, train_features, allow_pickle=True)
-    np.save(train_labels_pickle, train_labels, allow_pickle=True)
+    np.save(os.path.join(os.getenv('OUTPUT'), train_features_path), train_features, allow_pickle=True)
+    np.save(os.path.join(os.getenv('OUTPUT'), train_labels_path), train_labels, allow_pickle=True)
 
-    train_features = np.load(train_features_pickle)
-    train_labels = np.load(train_labels_pickle)
+    train_features = np.load(os.path.join(os.getenv('OUTPUT'), train_features_path))
+    train_labels = np.load(os.path.join(os.getenv('OUTPUT'), train_labels_path))
 
-    print(train_features.shape)
-    print(train_labels.shape)
+    assert train_features.shape[0] == train_labels.shape[0]
 
     test_features, test_labels = extract_features(parent_dir, sub_dirs=test_folds)
 
-    np.save(test_features_pickle, test_features, allow_pickle=True)
-    np.save(test_labels_pickle, test_labels, allow_pickle=True)
+    np.save(os.path.join(os.getenv('OUTPUT'), test_features_path), test_features, allow_pickle=True)
+    np.save(os.path.join(os.getenv('OUTPUT'), test_labels_path), test_labels, allow_pickle=True)
 
-    test_features = np.load(test_features_pickle)
-    test_labels = np.load(test_labels_pickle)
+    test_features = np.load(os.path.join(os.getenv('OUTPUT'), test_features_path))
+    test_labels = np.load(os.path.join(os.getenv('OUTPUT'), test_labels_path))
 
-    print(test_features.shape)
-    print(test_labels.shape)
+    assert test_features.shape[0] == test_labels.shape[0]
 
 
 if __name__ == '__main__':
+    load_dotenv()
     main()
