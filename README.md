@@ -32,13 +32,12 @@ You can run train the CNN and predict on 3 folds of the UrbanSound8K dataset usi
 
 Similarly, to run the SBCNN - `python3 src/sbcnn.py`.
 
-We've also implemented data-distributed model training setup using [Elephas](https://github.com/maxpumperla/elephas).
+We've also implemented  a data-distributed model training setup using [Elephas](https://github.com/maxpumperla/elephas).
 This is shown in `src/dist_sbcnn.py`.
-
 We use 2 workers on an m4.2xlarge instance to achieve data-distributed training. If you have Spark set up,
 you can test this locally using - `spark-submit src/dist_sbcnn.py`.
 
-The runtime for each of these can be anywhere from a few minutes (15 minutes for `dist_sbcnn.py` with
+The runtime for each of these models can be anywhere from a few minutes (15 minutes for `dist_sbcnn.py` with
 200 epochs to a few hours (`sbcnn.py` with all configurations).
 
 ### Troubleshooting
