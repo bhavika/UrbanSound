@@ -6,8 +6,4 @@ tar -xvf UrbanSound8K.tar.gz UrbanSound8K
 mkdir output
 
 python3 src/create_rep.py
-python3 src/cnn.py
-python3 src/sbcnn.py
-
-spark-submit src/dist_sbcnn.py
 
