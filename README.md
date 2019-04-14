@@ -7,9 +7,13 @@ Classification of urban sounds using deep learning.
 
 Requires Python3+ and Spark 2.0+.
 
-`git clone `
+`git clone git@github.com:bhavika/UrbanSound.git`
 
-` cd <repo> `
+`cd UrbanSound`
+
+`virtualenv venv`
+
+`source venv/bin/activate`
 
 `pip install -r requirements.txt`
 
